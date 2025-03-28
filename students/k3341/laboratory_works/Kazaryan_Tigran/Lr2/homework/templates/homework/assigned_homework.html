@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Заданные домашние задания{% endblock %}</title>
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    {% block extra_head %}{% endblock %}
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="{% url 'home' %}">Главная</a>
+            <div class="ml-auto">
+                <a class="btn btn-primary" href="{% url 'profile' %}">Мой аккаунт</a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container mt-4">
+        {% block content %}
+            <h1>Заданные домашние задания</h1>
+
+            {% if homeworks %}
+                <ul>
+                    {% for hw in homeworks %}
+                        <li>
+                            <strong>{{ hw.subject.name }}</strong> (до {{ hw.due_date }})<br>
+                            {{ hw.description }}<br>
+                            <small>Выдано: {{ hw.issue_date }}</small>
+
+                            <!-- Кнопка удаления (доступна только преподавателю, который задал задание) -->
+                            {% if user == hw.teacher %}
+                                <form action="{% url 'delete_homework' hw.id %}" method="post" style="display:inline;">
+                                    {% csrf_token %}
+                                    <button type="submit" class="btn btn-danger" onclick="return confirm('Вы уверены, что хотите удалить задание?');">
+                                        Удалить
+                                    </button>
+                                </form>
+                            {% endif %}
+                        </li>
+                    {% endfor %}
+                </ul>
+            {% else %}
+                <p>У вас пока нет заданных домашних заданий.</p>
+            {% endif %}
+
+            <div class="form-container">
+                <form action="{% url 'create_homework' %}" method="post">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-success">Задать новую домашку</button>
+                </form>
+
+                <form action="{% url 'home' %}" method="post">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-secondary">На главную</button>
+                </form>
+            </div>
+        {% endblock %}
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    {% block extra_scripts %}{% endblock %}
+</body>
+</html>

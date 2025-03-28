@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Домашние задания</title>
+</head>
+<body>
+    <h2>Список домашних заданий</h2>
+    <table border="1">
+        <tr>
+            <th>Предмет</th>
+            <th>Преподаватель</th>
+            <th>Дата выдачи</th>
+            <th>Срок выполнения</th>
+            <th>Описание</th>
+            <th>Действие</th>
+        </tr>
+        {% for hw in homework_homework %}
+        <tr>
+            <td>{{ hw.subject.name }}</td>
+            <td>{{ hw.teacher.username }}</td>
+            <td>{{ hw.issue_date }}</td>
+            <td>{{ hw.due_date }}</td>
+            <td>{{ hw.description }}</td>
+            <td>
+                <form action="{% url 'submit_homework' %}" method="post">
+                    {% csrf_token %}
+                    <button type="submit">Сдать задание</button>
+                </form>
+            </td>
+        </tr>
+        {% empty %}
+        <tr>
+            <td colspan="6">Нет домашних заданий</td>
+        </tr>
+        {% endfor %}
+    </table>
+
+    <br>
+    <a href="{% url 'logout' %}">Выйти</a>
+</body>
+</html>

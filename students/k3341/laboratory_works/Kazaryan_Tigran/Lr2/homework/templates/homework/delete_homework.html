@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Удаление домашнего задания</title>
+</head>
+<body>
+    <h2>Вы уверены, что хотите удалить это задание?</h2>
+    <p><strong>{{ homework.subject.name }}</strong>: {{ homework.description }}</p>
+    <form method="post">
+        {% csrf_token %}
+        <button type="submit">Да, удалить</button>
+        <form action="{% url 'assigned_homework' %}" method="post">
+            {% csrf_token %}
+            <button type="submit">Назад</button>
+        </form>
+    </form>
+</body>
+</html>

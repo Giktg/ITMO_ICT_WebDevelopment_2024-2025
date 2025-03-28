@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Ваши домашние задания{% endblock %}</title>
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    {% block extra_head %}{% endblock %}
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="{% url 'home' %}">Главная</a>
+            <div class="ml-auto">
+                <a class="btn btn-primary" href="{% url 'profile' %}">Мой аккаунт</a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container mt-4">
+        {% block content %}
+            {% if user.groups.all.0.name == "Ученики" %}
+                <h3>Ваши текущие домашние задания</h3>
+                {% if homeworks %}
+                    <ul>
+                        {% for homework in homeworks %}
+                            <li>
+                                <strong>{{ homework.subject }}</strong> - {{ homework.description }}<br>
+                                (Срок: {{ homework.due_date }})<br>
+
+                                <!-- Кнопка для перехода на страницу сдачи задания -->
+                                <form action="{% url 'submit_homework' homework.id %}" method="post">
+                                    {% csrf_token %}
+                                    <button type="submit" class="btn btn-primary">Ответить на задание</button>
+                                </form>
+                            </li>
+                        {% endfor %}
+                    </ul>
+                {% else %}
+                    <p class="no-homework">У вас пока нет заданных домашних заданий.</p>
+                {% endif %}
+            {% endif %}
+
+            <!-- Кнопка перехода на главную страницу аккаунта -->
+            <div class="form-container">
+                <form action="{% url 'home' %}" method="post">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-secondary">На главную</button>
+                </form>
+            </div>
+        {% endblock %}
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    {% block extra_scripts %}{% endblock %}
+</body>
+</html>

@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Профиль{% endblock %}</title>
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        /* Дополнительные стили для улучшения отображения таблицы */
+        table {
+            width: 100%;
+            margin-top: 20px;
+        }
+        th, td {
+            text-align: center;
+            vertical-align: middle;
+        }
+        th {
+            background-color: #f8f9fa;
+        }
+        .table-custom {
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            border-radius: 8px;
+        }
+    </style>
+    {% block extra_head %}{% endblock %}
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="{% url 'home' %}">Главная</a>
+            <div class="ml-auto">
+                <a class="btn btn-primary" href="{% url 'profile' %}">Мой аккаунт</a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container mt-4">
+        {% block content %}
+            <h1>Ваш профиль, {{ user.username }}!</h1>
+            <p>Имя: {{ user.first_name }}</p>
+            <p>Фамилия: {{ user.last_name }}</p>
+            <p>Email: {{ user.email }}</p>
+
+            {% if user.groups.all.0.name == "Преподаватели" %}
+                <h2>Заданные вами домашние задания</h2>
+                {% if assigned_homework %}
+                    <ul class="list-group">
+                        {% for hw in assigned_homework %}
+                            <li class="list-group-item">
+                                <strong>{{ hw.subject.name }}</strong> (до {{ hw.due_date }})<br>
+                                {{ hw.description }}<br>
+                                <small>Выдано: {{ hw.issue_date }}</small>
+                            </li>
+                        {% endfor %}
+                    </ul>
+                {% else %}
+                    <p class="text-muted">Вы пока не задали ни одного домашнего задания.</p>
+                {% endif %}
+
+                <!-- Таблица оценок -->
+                <h3 class="mt-4">Оценки студентов</h3>
+                <table class="table table-striped table-hover table-bordered table-custom">
+                    <thead>
+                        <tr>
+                            <th>Предмет</th>
+                            <th>Студент</th>
+                            <th>Оценка</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for submitted_homework in submitted_homeworks %}
+                        <tr>
+                            <td>{{ submitted_homework.homework.subject.name }}</td>
+                            <td>{{ submitted_homework.student.username }}</td>
+                            <td>{{ submitted_homework.grade }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+
+            {% else %}
+                <h3>Ваши текущие домашние задания</h3>
+                {% if student_homework %}
+                    <ul class="list-group">
+                        {% for homework in student_homework %}
+                            <li class="list-group-item">
+                                <strong>Предмет:</strong> {{ homework.subject.name }} <br>
+                                <strong>Описание:</strong> {{ homework.description }} <br>
+                                <strong>Срок:</strong> {{ homework.due_date|date:"d.m.Y" }}
+                            </li>
+                        {% endfor %}
+                    </ul>
+                {% else %}
+                    <p class="text-muted">У вас пока нет заданных домашних заданий.</p>
+                {% endif %}
+            {% endif %}
+
+            <div class="mt-4 text-center">
+                <form action="{% url 'home' %}" method="post" class="d-inline">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-primary">На главную</button>
+                </form>
+                <form action="{% url 'logout' %}" method="post" class="d-inline">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-danger">Выйти из аккаунта</button>
+                </form>
+            </div>
+        {% endblock %}
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    {% block extra_scripts %}{% endblock %}
+</body>
+</html>

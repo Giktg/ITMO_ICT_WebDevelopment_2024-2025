@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Детали домашнего задания</title>
+</head>
+<body>
+    <h1>Домашнее задание по {{ homework.subject }}</h1>
+    <p><strong>Преподаватель:</strong> {{ homework.teacher }}</p>
+    <p><strong>Дата выдачи:</strong> {{ homework.issue_date }}</p>
+    <p><strong>Срок выполнения:</strong> {{ homework.due_date }}</p>
+    <p><strong>Описание:</strong> {{ homework.description }}</p>
+
+    {% if homework.penalty_info %}
+        <p><strong>Информация о штрафах:</strong> {{ homework.penalty_info }}</p>
+    {% endif %}
+
+    <h2>Отправить выполненное задание</h2>
+    <form action="{% url 'submit_homework' homework.id %}" method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        <label for="file">Прикрепить файл:</label>
+        <input type="file" name="file" id="file" required>
+        <button type="submit">Отправить</button>
+    </form>
+</body>
+</html>

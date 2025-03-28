@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Ваш сайт{% endblock %}</title>
+    <!-- Подключение Bootstrap через CDN -->
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    {% block extra_head %}{% endblock %}
+    <style>
+        /* Стили для закрепленной панели */
+        .navbar {
+            position: fixed;
+            top: 0;
+            width: 100%;
+            z-index: 1000;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            margin-top: 56px; /* отступ, чтобы контент не перекрывался панелью */
+        }
+
+        .container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-top: 20px; /* отступ от навигационной панели */
+        }
+
+        h1 {
+            color: #333;
+            text-align: center;
+        }
+
+        form {
+            margin: 10px;
+            text-align: center;
+        }
+
+        button {
+            background-color: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+            border-radius: 5px;
+            transition: background-color 0.3s;
+        }
+
+        button:hover {
+            background-color: #0056b3;
+        }
+
+        button:focus {
+            outline: none;
+        }
+    </style>
+</head>
+<body>
+    <!-- Навигационная панель -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+        <div class="container-fluid">
+            <!-- Левая кнопка на главную -->
+            <a class="navbar-brand" href="{% url 'home' %}">Главная</a>
+
+            <!-- Правая кнопка перехода в аккаунт -->
+            <div class="ml-auto">
+                <a class="btn btn-primary" href="{% url 'profile' %}">Мой аккаунт</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Основное содержимое страницы -->
+    <div class="container mt-4">
+        {% block content %}
+        <h1>Добро пожаловать на сайт для домашних заданий!</h1>
+
+        <div class="container">
+            {% if user.is_authenticated %}
+                {% if user.groups.all.0.name == "Преподаватели" %}
+                    <form action="{% url 'assigned_homework' %}" method="post">
+                        {% csrf_token %}
+                        <button type="submit">Заданные домашние задания</button>
+                    </form>
+
+                    {% for submission in submitted_homeworks %}
+                        <div>
+                            <h3>{{ submission.student.username }} - Ответ:</h3>
+                            <p>{{ submission.answer_text }}</p>
+
+                            <form method="post">
+                                {% csrf_token %}
+                                {{ form.as_p }}
+                                <button type="submit">Сохранить оценку</button>
+                            </form>
+                        </div>
+                    {% endfor %}
+                {% else %}
+                    <form action="{% url 'student_homework' %}" method="post">
+                        {% csrf_token %}
+                        <button type="submit">Мои домашние задания</button>
+                    </form>
+                {% endif %}
+
+                <form action="{% url 'register' %}" method="post">
+                    {% csrf_token %}
+                    <button type="submit">Зарегистрировать новый аккаунт</button>
+                </form>
+
+            {% else %}
+                <form action="{% url 'register' %}" method="post">
+                    {% csrf_token %}
+                    <button type="submit">Регистрация</button>
+                </form>
+                <form action="{% url 'login' %}" method="post">
+                    {% csrf_token %}
+                    <button type="submit">Войти</button>
+                </form>
+            {% endif %}
+        </div>
+        {% endblock %}
+    </div>
+
+    <!-- Подключение скриптов Bootstrap -->
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
+    {% block extra_scripts %}{% endblock %}
+</body>
+</html>
